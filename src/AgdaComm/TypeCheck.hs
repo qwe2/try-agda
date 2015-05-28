@@ -11,6 +11,7 @@ import Agda.TypeChecking.Monad.Options ( setCommandLineOptions )
 import Agda.Utils.FileName             ( absolute )
 import System.FilePath.Posix
 import Data.Text
+import Text.PrettyPrint.HughesPJ       ( render )
 
 import Type.SnippetError
 
@@ -33,7 +34,7 @@ doCheck relative = do
                                 , ranges = fmap (\(s, p) -> (pack `fmap` s, p)) (rngToPos rng) 
                                 }
 
-    match (Exception rng str) = mkSe str rng
+    match (Exception rng str) = mkSe (render str) rng
     match PatternErr = SnippetError "Pattern error" []
     match (IOException rng ex) = mkSe (show ex) rng
     match (TypeError _ cls) =
