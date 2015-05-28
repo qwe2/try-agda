@@ -11,5 +11,5 @@ cd try-agda
 cabal sandbox init
 cabal add-source ../path/to/unpacked/Agda-2.4.2.2     # or whichever version you unpacked
 cabal install -j
-cabal run -- -9
+cabal run -- -p 9000
 ```
