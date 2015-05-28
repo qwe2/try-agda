@@ -7,10 +7,11 @@ module Site
 import Api.Core
 import Data.ByteString (ByteString)
 import Snap.Snaplet
+import Snap.Util.FileServe
 import Application
 
 routes :: [(ByteString, Handler App App ())]
-routes = []
+routes = [("", serveDirectory "resources")]
 
 app :: SnapletInit App App
 app = makeSnaplet "app" "A snaplet example application." Nothing $ do
