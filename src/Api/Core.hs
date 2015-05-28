@@ -4,7 +4,6 @@
 module Api.Core where
 
 import Control.Lens
-import Snap.Core
 import Snap.Snaplet
 import qualified Data.ByteString.Char8 as B
 import Api.Services.AgdaService
