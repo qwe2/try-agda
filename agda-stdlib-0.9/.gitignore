@@ -1,0 +1,11 @@
+# Keep this file in alphabetic order please!
+
+.*.swp
+*.agdai
+*.agda.el
+*.lagda.el
+*.hi
+*.o
+dist
+Everything.agda
+html

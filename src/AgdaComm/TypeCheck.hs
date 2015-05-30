@@ -15,13 +15,16 @@ import Text.PrettyPrint.HughesPJ       ( render )
 
 import Type.SnippetError
 
+libPath :: FilePath
+libPath = "agda-stdlib-0.9/src/"
+
 doCheck :: String -> IO (Maybe SnippetError)
 doCheck relative = do
   let dir = takeDirectory relative
   absol <- absolute relative
 
   r :: Either TCErr (Interface, MaybeWarnings) <- liftIO $ runTCMTop $
-    do setCommandLineOptions (defaultOptions { optIncludeDirs = Left [".", dir] })
+    do setCommandLineOptions (defaultOptions { optIncludeDirs = Left [".", dir, libPath] })
        typeCheckMain absol
 
   case r of

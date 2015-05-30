@@ -1,6 +1,6 @@
 .cabal-sandbox/
 dist/
 cabal.sandbox.config
-Agda-2.4.2.2/
 log/
 tmp/
+*.agdai
