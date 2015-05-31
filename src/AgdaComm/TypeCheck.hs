@@ -6,19 +6,18 @@ import Control.Monad.IO.Class ( MonadIO(liftIO) )
 
 import Agda.Interaction.Imports        ( typeCheckMain, MaybeWarnings )
 import Agda.Interaction.Options        ( defaultOptions, optIncludeDirs )
-import Agda.TypeChecking.Monad.Base    ( Interface, runTCMTop, TCErr(PatternErr, IOException, Exception, TypeError), envRange, clEnv, clValue )
+import Agda.TypeChecking.Monad.Base    ( Interface, runTCMTop, runTCMTop', TCErr(PatternErr, IOException, Exception, TypeError), envRange, clEnv )
 import Agda.TypeChecking.Monad.Options ( setCommandLineOptions )
+import Agda.TypeChecking.Errors        ( prettyError )
 import Agda.Utils.FileName             ( absolute )
 import System.FilePath.Posix
-import Data.Text
-import Text.PrettyPrint.HughesPJ       ( render )
 
 import Type.SnippetError
 
 libPath :: FilePath
 libPath = "agda-stdlib-0.9/src/"
 
-doCheck :: String -> IO (Maybe SnippetError)
+doCheck :: String -> IO SnippetError
 doCheck relative = do
   let dir = takeDirectory relative
   absol <- absolute relative
@@ -28,19 +27,22 @@ doCheck relative = do
        typeCheckMain absol
 
   case r of
-    Left tcerr ->
-      return $ Just (match tcerr)
+    Left tcerr -> do
+      msg <- runTCMTop' $ prettyError tcerr
+      return $ mkSe (stripError msg) (match tcerr)
     Right _ ->
-      return Nothing
+      return Ok
   where
     mkSe err rng = SnippetError { errorMessage = err
-                                , ranges = fmap (\(s, p) -> (pack `fmap` s, p)) (rngToPos rng) 
+                                , ranges = rng
                                 }
 
-    match (Exception rng str) = mkSe (render str) rng
-    match PatternErr = SnippetError "Pattern error" []
-    match (IOException rng ex) = mkSe (show ex) rng
+    stripError ('/' : rest) = tail $ dropWhile ('\n' /=) rest -- starts with filename
+    stripError xs = xs
+
+    match (Exception rng _) = rngToPos rng
+    match PatternErr = []
+    match (IOException rng _) = rngToPos rng
     match (TypeError _ cls) =
       let rng = envRange $ clEnv cls in
-      let msg = show $ clValue cls in
-      mkSe msg rng
+      rngToPos rng

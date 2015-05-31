@@ -15,7 +15,7 @@ import System.Random
 import qualified Data.Text.IO as D
 import Data.UUID
 import Control.Monad.IO.Class
-import System.Directory ( removeFile, createDirectoryIfMissing )
+import System.Directory ( createDirectoryIfMissing )
 
 import Type.Snippet
 
@@ -36,7 +36,6 @@ typeCheck = do
     Just sn -> do
       file <- liftIO $ writeAgdaFile (code sn)
       err <- liftIO $ doCheck file
-      liftIO $ removeFile file
       writeLBS $ encode err
 
 writeAgdaFile :: Text -> IO String
